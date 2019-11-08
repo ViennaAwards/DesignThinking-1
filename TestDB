@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <mysql.h>
-#pragma comment(lib, "libmariadb.lib")
 
 int main(int argc, char **argv)
 {
@@ -15,6 +14,10 @@ int main(int argc, char **argv)
 		mysql_close(con);
 		exit(1);
 	}
+	else {
+		printf("You complete Connect!");
+	}
+
 	mysql_close(con);
 	return 0;
 }
