@@ -1,0 +1,20 @@
+#include <stdio.h>
+#include <mysql.h>
+#pragma comment(lib, "libmariadb.lib")
+
+int main(int argc, char **argv)
+{
+	MYSQL *con = mysql_init(NULL);
+	if (con == NULL){
+		fprintf(stderr, "%s\n", mysql_error(con));
+		exit(1);
+	}
+
+	if (mysql_real_connect(con, "220.69.240.122", "root", "000000",NULL, 0, NULL, 0) == NULL){
+		fprintf(stderr, "%s\n", mysql_error(con));
+		mysql_close(con);
+		exit(1);
+	}
+	mysql_close(con);
+	return 0;
+}
