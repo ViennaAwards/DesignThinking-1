@@ -7,3 +7,5 @@ MariaDB를 비주얼 스튜디오에 연결하는 방법이 수록되어있다.
 sudo apt-get install mariadb-server mariadb-client
 sudo mysql_secure_installation
 gcc -o TestDB TestDB.c -lmysqlclient//ㄹㅇ이거 찾느라 한세월 걸렸네 좋은 책이 필요하다...인터넷은 다 좋지만 좋은 자료를 찾거나 구별하는데 한계가 있어...
+https://blog.naver.com/icbanq/221690905902
+라즈베리파이 한글화 방법에 대한 설명
