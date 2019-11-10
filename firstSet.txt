@@ -1,11 +1,16 @@
 https://blog.naver.com/sbe03253/221474193385
-MariaDB를 비주얼 스튜디오에 연결하는 방법이 수록되어있다.
+//MariaDB를 비주얼 스튜디오에 연결하는 방법이 수록되어있다.
+//위 과정 전에 설치한  Path에 bin와 lib폴더의 위치를 입력해주어야한다.
 
-위 과정 전에 설치한  Path에 bin와 lib폴더의 위치를 입력해주어야한다.
-
-이 밑은 라즈베리파이에서의 설정에 관한 것이다.
+//이 밑은 라즈베리파이에서의 설정에 관한 것이다.
 sudo apt-get install mariadb-server mariadb-client
 sudo mysql_secure_installation
+//커넥터 어떻게 깔았더라?
+sudo apt-get install mariadb-connector-c
+//아니면- 근데 위에꺼 안될꺼야.
+sudo apt-get install libmariadb-dev-compat libmariadb-dev -y
+//근데 커넥터 없어도 될꺼같은데...어차피 땡겨서 쓰는데 왜 깔지.
+//libmariadb가 헤더파일만 잘 옮겨서 쓸 수 있게 해주는거네 커넥터는 깔지 말자
 gcc -o TestDB TestDB.c -lmysqlclient//ㄹㅇ이거 찾느라 한세월 걸렸네 좋은 책이 필요하다...인터넷은 다 좋지만 좋은 자료를 찾거나 구별하는데 한계가 있어...
 https://blog.naver.com/icbanq/221690905902
-라즈베리파이 한글화 방법에 대한 설명
+//라즈베리파이 한글화 방법에 대한 설명
