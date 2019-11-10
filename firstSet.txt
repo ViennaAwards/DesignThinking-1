@@ -2,3 +2,7 @@ https://blog.naver.com/sbe03253/221474193385
 MariaDB를 비주얼 스튜디오에 연결하는 방법이 수록되어있다.
 
 위 과정 전에 설치한  Path에 bin와 lib폴더의 위치를 입력해주어야한다.
+
+이 밑은 라즈베리파이에서의 설정에 관한 것이다.
+sudo apt-get install mariadb-server mariadb-client
+sudo mysql_secure_installation
