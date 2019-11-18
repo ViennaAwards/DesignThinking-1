@@ -28,6 +28,8 @@ char phbuf[5] = {'\0',};
 char ecbuf[5] = {'\0',};
 char tpbuf[6] = {'\0',};
 
+char newChar;
+
 int main();
 void loop();
 void setup();
@@ -78,7 +80,6 @@ void logger(timetype temp) {
    if(hour[0]=='\0') {hour[0] = '0'; hour[1]='0';}
    if(min[0]=='\0') {min[0] = '0'; min[1] = '0';}
    printf("%s:%s\n", hour, min);
-   printf("loggertest");
    sprintf(Stringtemp,"Out/%sh%sm.txt",hour,min);
    printf("%s\n",Stringtemp);
 }
@@ -86,20 +87,15 @@ void logger(timetype temp) {
 void setup(){
 	printf("%s \n","Start");
 	fflush(stdout);
-
 	if ((fd = serialOpen ( device, baud )) < 0){
 	 fprintf (stderr,"Unable to open device: %s\n", strerror (errno));
 	 exit(1);
 	}
-
 	if (wiringPiSetup () == -1){
 	 fprintf(stdout, "Unable to start wiringPi: %s\n", strerror (errno));
 	 exit(1);
 	}
-
 }
-
-char newChar;
 
 void loop(){
 	if(millis()-timer>=3000){
@@ -152,22 +148,18 @@ int main(){
         else {
                 printf("You complete Connect!\n");
         }
-
 	while(1){
 		Write();
 		fps = fopen(Stringtemp,"r");
 		fgets(buffer,80,fps);
 		separateVal(buffer);
-		
 		sprintf(query,"insert into data (phval,ecval,tpval) values('%s','%s','%s')",phbuf,ecbuf,tpbuf);
-	        printf("query is %s\n",query);
-        	
+	        printf("query is %s\n",query);	
 		if(mysql_query(con,query)==0){
                		printf("data inserted!\n");
         	}else{
                 	printf("Insert failure!\n");
         	}
-
 	}
 	mysql_close(con);
 	serialClose(fd);
