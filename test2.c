@@ -22,6 +22,7 @@ unsigned long timer = 0;
 
 char Stringtemp[20] = {'\0',};
 char buffer[100] = {'\0',};
+char testbuf[20] = {'\0',};
 
 char phbuf[5] = {'\0',};
 char ecbuf[5] = {'\0',};
@@ -77,73 +78,12 @@ void logger(timetype temp) {
    if(hour[0]=='\0') {hour[0] = '0'; hour[1]='0';}
    if(min[0]=='\0') {min[0] = '0'; min[1] = '0';}
    printf("%s:%s\n", hour, min);
-   if (hour[1] != '\0'&&min[1] != '\0') {
-      Stringtemp[0] = 'O';
-      Stringtemp[1] = 'u';
-      Stringtemp[2] = 't';
-      Stringtemp[3] = '/';
-      Stringtemp[4] = hour[0];
-      Stringtemp[5] = hour[1];
-      Stringtemp[6] = 'h';
-      Stringtemp[7] = min[0];
-      Stringtemp[8] = min[1];
-      Stringtemp[9] = 'm';
-      Stringtemp[10] = '.';
-      Stringtemp[11] = 't';
-      Stringtemp[12] = 'x';
-      Stringtemp[13] = 't';
-      Stringtemp[14] = '\0';
-   }
-   else if(hour[1] == '\0'&&min[1]!='\0'){
-      Stringtemp[0] = 'O';
-      Stringtemp[1] = 'u';
-      Stringtemp[2] = 't';
-      Stringtemp[3] = '/';
-      Stringtemp[4] = hour[0];
-      Stringtemp[5] = 'h';
-      Stringtemp[6] = min[0];
-      Stringtemp[7] = min[1];
-      Stringtemp[8] = 'm';
-      Stringtemp[9] = '.';
-      Stringtemp[10] = 't';
-      Stringtemp[11] = 'x';
-      Stringtemp[12] = 't';
-      Stringtemp[13] = '\0';
-   }else if(hour[1]=='\0'&&min[1]=='\0'){
-      Stringtemp[0] = 'O';
-      Stringtemp[1] = 'u';
-      Stringtemp[2] = 't';
-      Stringtemp[3] = '/';
-      Stringtemp[4] = hour[0];
-      Stringtemp[5] = 'h';
-      Stringtemp[6] = min[0];
-      Stringtemp[7] = 'm';
-      Stringtemp[8] = '.';
-      Stringtemp[9] = 't';
-      Stringtemp[10] = 'x';
-      Stringtemp[11] = 't';
-      Stringtemp[12] = '\0';
-   }if (hour[1] != '\0'&&min[1]=='\0') {
-      Stringtemp[0] = 'O';
-      Stringtemp[1] = 'u';
-      Stringtemp[2] = 't';
-      Stringtemp[3] = '/';
-      Stringtemp[4] = hour[0];
-      Stringtemp[5] = hour[1];
-      Stringtemp[6] = 'h';
-      Stringtemp[7] = min[0];
-      Stringtemp[8] = 'm';
-      Stringtemp[9] = '.';
-      Stringtemp[10] = 't';
-      Stringtemp[11] = 'x';
-      Stringtemp[12] = 't';
-      Stringtemp[13] = '\0';
-   }
-  
+   printf("loggertest");
+   sprintf(Stringtemp,"Out/%sh%sm.txt",hour,min);
    printf("%s\n",Stringtemp);
    //FILE *fp;
    //fp = fopen(Stringtemp, "wb");
-   //fputs(Stringtemp,fp);
+   //fputs(Stringtemp,fp)
    //fclose(fp);
 }
 
@@ -179,7 +119,6 @@ void loop(){
 	 fflush(stdout);
 	}
 }
-
 
 int Write(){
 	logger(gettime());
