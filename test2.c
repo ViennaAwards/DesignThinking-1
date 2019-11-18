@@ -81,10 +81,6 @@ void logger(timetype temp) {
    printf("loggertest");
    sprintf(Stringtemp,"Out/%sh%sm.txt",hour,min);
    printf("%s\n",Stringtemp);
-   //FILE *fp;
-   //fp = fopen(Stringtemp, "wb");
-   //fputs(Stringtemp,fp)
-   //fclose(fp);
 }
 
 void setup(){
@@ -107,14 +103,11 @@ char newChar;
 
 void loop(){
 	if(millis()-timer>=3000){
-	// serialPuts (fd, "Pong!\n");
-	// serialPutchar (fd,65);
 	 timer=millis();
 	}
 	
 	if(serialDataAvail (fd)){
 	 newChar = serialGetchar(fd);
-	 //delay();
 	 printf("%c",newChar);
 	 fflush(stdout);
 	}
@@ -123,16 +116,13 @@ void loop(){
 int Write(){
 	logger(gettime());
 	FILE *fp = fopen(Stringtemp,"w");
-	//FILE *fp = fopen("Out/bla.txt","w");
 	setup();
 	while(1){
 		loop();
 		if(newChar=='$') {q++; printf("action change%d\n",q);}
 		if(q==1) if(newChar!='\0'||newChar!='\n'){
-		       	//if(buffer[i]!=newChar) buffer[i+1] = newChar;
 			fputc(newChar,fp);
-			delay(10);
-			//i++;
+			delay(10);//Too fast I/O
 		}
 		if(q==2) {q=0;break;}
 		newChar = '\0';
