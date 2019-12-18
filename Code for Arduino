@@ -1,0 +1,366 @@
+#include "DFRobot_EC.h"
+#include <EEPROM.h>
+#include<OneWire.h>
+
+#define EC_PIN A1
+#define SensorPin A0
+#define Offset 0.00
+#define Relay1 7
+#define Relay2 8
+#define samplingInterval 10
+#define printInterval 1000
+#define ArrayLenth 100   //times of collection
+
+const int Temp_SensingPin = 2;
+
+OneWire ds(Temp_SensingPin);
+float ecValue;
+DFRobot_EC ec;
+int pHArray[ArrayLenth];   //Store the average value of the sensor feedback
+int pHArrayIndex = 0;
+
+void Sylin()
+{
+  pinMode(9, OUTPUT);
+  pinMode(10, OUTPUT);
+  pinMode(11, OUTPUT);
+}
+
+void setup() {
+
+  // initialize serial communication with computer:
+
+  Serial.begin(115200);
+  pinMode(Temp_SensingPin, OUTPUT);
+  ec.begin();
+
+  Serial.println("Ready");    //Test the serial monitor
+
+  // initialize all the readings to 0:
+
+  pinMode(Relay1, OUTPUT);
+  pinMode(Relay2, OUTPUT);
+  Sylin();
+}
+
+
+double ECprev = 0;
+double pHprev = 0;
+
+long count = 0;
+long count2 = 0;
+int count3 = 0;
+int cmp = 0;
+int cmp2 = 0;
+
+double PH = 0;
+double EC = 0;
+double pHValueCondition;
+void loop() {
+  float temperature = getTemp();
+  static float pHValue, voltage;
+
+  //  digitalWrite(11,LOW); // 불이 켜졌을 때  (3)
+  //  digitalWrite(10,LOW); // 10번 전류 활성
+  //  digitalWrite(9,LOW);  // 불이 켜졌을 때 // 수축
+  //  delay(10000);
+  //
+  //  digitalWrite(11,HIGH); // 불이 꺼졌을 때  (1)
+  //  digitalWrite(10,LOW); // 10번 전류 활성
+  //  digitalWrite(9,HIGH); // 불이 꺼졌을 때 //이완
+  //  delay(10000);
+
+  // digitalWrite(10,HIGH); // 10번 전류 차단 (2)
+  if(count3 == 0)
+  {
+    digitalWrite(11, HIGH); // 불이 꺼졌을 때  (1)
+    digitalWrite(10, LOW); // 10번 전류 활성
+    digitalWrite(9, HIGH); // 불이 꺼졌을 때 //이완
+    delay(20500);
+    count3 = 1;
+  }
+    digitalWrite(10, HIGH);
+
+
+  if (count2 < 1000) {
+    digitalWrite(Relay1, HIGH);
+    digitalWrite(Relay2, LOW);
+  }
+  if (count2 >= 1000) {
+    digitalWrite(Relay1, LOW);
+    digitalWrite(Relay2, HIGH);
+  }
+
+  static unsigned long samplingTime = millis();
+
+  static unsigned long printTime = millis();
+
+  if (millis() - samplingTime > samplingInterval)
+
+  {
+
+    pHArray[pHArrayIndex++] = analogRead(SensorPin);
+
+    if (pHArrayIndex == ArrayLenth)pHArrayIndex = 0;
+
+    voltage = avergearray(pHArray, ArrayLenth) * 5.0 / 1024;
+
+    pHprev = pHValueCondition;
+
+    pHValue = 3.5 * voltage + Offset;
+    samplingTime = millis();
+    pHValueCondition = pHValue * 298.0 / (273.0 + temperature); //added-mj
+
+    //pHValue=slope(pHValue,temperature);
+
+  }
+
+  if (millis() - printTime > printInterval)  //Every 800 milliseconds, print a numerical, convert the state of the LED indicator
+  {
+    Serial.print("Count:");
+
+    Serial.println(count);
+
+    Serial.print("Voltage:");
+
+    Serial.print(voltage, 2);
+
+    Serial.print("    pHprev value: ");
+
+    Serial.println(pHprev, 2);
+
+    Serial.print("    pH value: ");
+    //double pHValueCondition = pHValue*298.0/(273.0+temperature);//added-mj
+    //Serial.println(pHValue, 2);//origin
+    Serial.println(pHValueCondition, 2);//edited-mj
+    PH = pHValueCondition;
+    printTime = millis();
+    //프린트 해주는 부분--------------------------------
+  }
+  if ((pHprev / pHValue > 0.999) && (pHprev / pHValue < 1.001)&&( pHValue < 1.00)&&(pHprev != Offset) && (pHValue != Offset) && ((pHprev != 0.175) && (pHValue != slope(0.175, temperature)))) {
+    count++;
+  }
+  if (count == cmp) {
+    count = 0;
+  }
+  cmp = count;
+  delay(10);
+  /*
+
+    Every once in a while,sample the analog value and calculate the average.
+
+  */
+  static unsigned long timepoint = millis();
+
+  if (millis() - timepoint > 1000U) //time interval: 1s
+
+  {
+
+    timepoint = millis();
+
+    voltage = analogRead(EC_PIN) / 1024.0 * 5000; // read the voltage
+
+    //temperature = readTemperature();  // read your temperature sensor to execute temperature compensation
+    ECprev = ecValue;
+    ecValue =  ec.readEC(voltage, temperature); // convert voltage to EC with temperature compensation
+    Serial.print("Count 2:");
+
+    Serial.println(count2);
+
+    Serial.print("temperature:");
+
+    Serial.print(temperature, 1);
+
+    Serial.print("^C  EC:");
+
+    Serial.print(ecValue, 2);
+    Serial.println("ms/cm   ");
+    delay(10);
+  }
+  if ((ECprev / ecValue > 0.999) && (ECprev / ecValue < 1.001)&&(ECprev != 0) && (ecValue != 0)) {
+    count2++;
+  }
+  if (count2 == cmp) {
+    count2 = 0;
+  }
+  if (count2 < 999) {
+    EC = ecValue;
+  }
+  cmp2 = count2;
+
+  ec.calibration(voltage, temperature); // calibration process by Serail CMD
+  delay(10);
+  if ((count > 1000) & (count2 > 1000))/*$flag*/ {
+    
+    
+    Serial.print("    pH value: ");
+
+    Serial.println(PH, 2);
+
+    Serial.print("    EC value: ");
+
+    Serial.println(EC, 2);
+    Serial.print("$");
+    Serial.print(PH, 2);
+    Serial.print(EC, 2);
+    Serial.print(temperature, 2);
+    Serial.println("$");
+    delay(5000);
+    
+    delay(5000);
+    count=0;
+    count2=0;
+    }
+    //digitalWrite(11, LOW); // 불이 켜졌을 때  (1)
+    //digitalWrite(10, LOW); // 10번 전류 활성
+    //digitalWrite(9, LOW); // 불이 켜졌을 때 //수축
+    //delay(20500);
+}
+
+
+double avergearray(int* arr, int number)
+
+{
+
+  int i;
+
+  int max, min;
+
+  double avg;
+
+  long amount = 0;
+
+  if (number <= 0)
+
+  {
+
+    Serial.println("Error number for the array to avraging!/n");
+
+    return 0;
+
+  }
+
+  if (number < 5) //less than 5, calculated directly statistics
+
+  {
+
+    for (i = 0; i < number; i++)
+
+    {
+
+      amount += arr[i];
+
+    }
+
+    avg = amount / number;
+
+    return avg;
+
+  }
+
+  else
+
+  {
+
+    if (arr[0] < arr[1])
+
+    {
+
+      min = arr[0]; max = arr[1];
+
+    }
+
+    else
+
+    {
+
+      min = arr[1]; max = arr[0];
+
+    }
+
+    for (i = 2; i < number; i++)
+
+    {
+
+      if (arr[i] < min)
+
+      {
+
+        amount += min;      //arr<min
+
+        min = arr[i];
+
+      }
+
+      else
+
+      {
+
+        if (arr[i] > max)
+
+        {
+
+          amount += max;  //arr>max
+
+          max = arr[i];
+
+        }
+
+        else
+
+        {
+
+          amount += arr[i]; //min<=arr<=max
+
+        }
+
+      }//if
+
+    }//for
+
+    avg = (double)amount / (number - 2);
+
+  }//if
+
+  return avg;
+
+}
+float getTemp() {
+  byte data[12];
+  byte addr[8];
+  if ( !ds.search(addr)) {
+    ds.reset_search();
+    return -1000;
+  }
+  if ( OneWire::crc8( addr, 7) != addr[7]) {
+    Serial.println("CRC is not valid!");
+    return -1000;
+  }
+  if ( addr[0] != 0x10 && addr[0] != 0x28) {
+    Serial.print("Device is not recognized");
+    return -1000;
+  }
+  ds.reset();
+  ds.select(addr);
+  ds.write(0x44, 1);
+  byte present = ds.reset();
+  ds.select(addr);
+  ds.write(0xBE);
+
+  for (int i = 0; i < 9; i++) {
+    data[i] = ds.read();
+  }
+
+  ds.reset_search();
+  byte MSB = data[1];
+  byte LSB = data[0];
+  float tempRead = ((MSB << 8) | LSB);
+  float TemperatureSum = tempRead / 16;
+  return TemperatureSum;
+}
+
+float slope(float pHValue, float temperature) {
+  float Correction = 298.0 / (273.0 + temperature);
+  float CorrectionpH = pHValue * Correction;
+  return CorrectionpH;
+}
